@@ -75,10 +75,7 @@ abstract public class AbstractJScrollPane extends JScrollPane implements TablePa
      * @param data The data as a matrix of strings
      */
     private void updateData(final Vector<Vector<String>> data) {
-        final DefaultTableModel tableModel = new DefaultTableModel();
-        for (int i = 0; i < this.table.getModel().getColumnCount(); i++) {
-            tableModel.addColumn(this.table.getColumnName(i));
-        }
+        final DefaultTableModel tableModel = new DefaultTableModel(this.columns, 0);
         for (final Vector<String> row : data) {
             tableModel.addRow(row);
         }
