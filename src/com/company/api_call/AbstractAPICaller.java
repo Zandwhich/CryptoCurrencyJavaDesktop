@@ -126,6 +126,9 @@ public abstract class AbstractAPICaller implements APICallerInterface {
     @Override
     public String getName() { return this.name; }
 
+    /* TODO: This is where you left off. When we switch from one currency to the next, but don't refresh, we aren't
+     *   updating the values by getting the latest values.
+     */
     @Override
     public double getPrice(final CryptoCurrencies crypto, final FiatCurrencies fiat)
             throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported  {
