@@ -173,7 +173,6 @@ final public class MainJFrameWindow extends AbstractJFrameWindow implements Main
     // TODO: This should be done in the main table
     @Override
     public void setRefreshing(final String name) {
-        System.out.println("Setting refreshing for endpoint " + name);
 
         for (final Vector<String> website : this.data) {
             if (website.firstElement().equals(name)) {
@@ -191,16 +190,11 @@ final public class MainJFrameWindow extends AbstractJFrameWindow implements Main
                             final LocalDateTime lastUpdated) {
         for (final Vector<String> website : this.data) {
             if (website.firstElement().equals(name)) {
-                System.out.println("Starting the updatePrice logic for endpoint " + name);
                 this.setVectorizedWebsite(website, price, hasSucceeded, lastUpdated);
                 this.table.setData(this.data);
-                System.out.println("Have set " + name + " to " + price + " with success of " + hasSucceeded + " at " +
-                        "time " + lastUpdated.toString());
                 return;
             }
         }
-        System.out.println("Failed to updatePrice for " + name + " with price " + price + " and status " + hasSucceeded
-         + " at time " + lastUpdated.toString());
     }
 
     private void setVectorizedWebsite(final Vector<String> website, final double price, final boolean hasSucceeded,

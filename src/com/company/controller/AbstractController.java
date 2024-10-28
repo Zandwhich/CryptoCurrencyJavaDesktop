@@ -52,7 +52,7 @@ public abstract class AbstractController implements  ControllerInterface {
             connection.connect();
             internet = true;
         }
-        catch (IOException exception) {
+        catch (final IOException exception) {
             // Failed to connect to yahoo
         }
 

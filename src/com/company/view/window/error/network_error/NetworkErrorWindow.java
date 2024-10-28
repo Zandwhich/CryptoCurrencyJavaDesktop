@@ -6,7 +6,7 @@ import com.company.tool.enums.currency.FiatCurrencies;
 import com.company.view.window.error.AbstractJFrameErrorWindow;
 
 /**
- * The error to throw if there is a network error
+ * The error window to show if there is a NetworkError
  */
 final public class NetworkErrorWindow extends AbstractJFrameErrorWindow implements NetworkErrorWindowInterface {
 
@@ -49,4 +49,28 @@ final public class NetworkErrorWindow extends AbstractJFrameErrorWindow implemen
                 NetworkErrorWindow.MESSAGE);
     }
 
+    /**
+     * The constructor for the window that displays a network error along with the name of the connection that caused the error
+     * @param controller The controller in charge of the window
+     * @param name The name of the cryptocurrency that caused the error
+     */
+    public NetworkErrorWindow(final ControllerInterface controller, final String name) {
+        super(controller, NetworkErrorWindow.TITLE, NetworkErrorWindow.WIDTH, NetworkErrorWindow.HEIGHT,
+                messageWithName(name));
+    }
+
+
+    /* ************ *
+     *    Methods   *
+     * ************ */
+
+    /**
+     * Returns the message formatted to hold the cryptocurrency's name that tried to call a network connection
+     * @param name The name of the cryptocurrency that tried to call a network connection
+     * @return The message formatted to hold the cryptocurrency's name that tried to call a network connection
+     */
+    private static String messageWithName(final String name) {
+        return "There appears to be a network connection error. This error occurred while trying to connect to " +
+                name + ".\nPlease check your connection and try again.";
+    }
 }

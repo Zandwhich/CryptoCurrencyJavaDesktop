@@ -4,6 +4,7 @@ import com.company.api_call.APICallerContract;
 import com.company.api_call.AbstractAPICaller;
 import com.company.tool.enums.currency.CryptoCurrencies;
 import com.company.tool.enums.currency.FiatCurrencies;
+import com.company.tool.exception.BadData;
 import com.company.tool.exception.currency_not_supported.CryptoCurrencyNotSupported;
 import com.company.tool.exception.currency_not_supported.FiatCurrencyNotSupported;
 import json_simple.JSONObject;
@@ -72,7 +73,7 @@ final public class CryptoCompare extends AbstractAPICaller {
     @Override
     protected double extractPrice(final JSONObject jsonObject, final CryptoCurrencies crypto,
                                   final FiatCurrencies fiat)
-            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
+            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported, BadData {
         super.throwIfNotAcceptedCurrency(crypto, fiat);
         double price;
         try {
@@ -82,6 +83,8 @@ final public class CryptoCompare extends AbstractAPICaller {
         } catch (final ClassCastException e) {
             // Sometimes when the price has too many digits, it gets returned as a long
             price = ((Long) jsonObject.get(fiat.getAbbreviatedName())).doubleValue();
+        } catch (final Exception e) {
+            throw new BadData(e, this);
         }
         return price;
     }

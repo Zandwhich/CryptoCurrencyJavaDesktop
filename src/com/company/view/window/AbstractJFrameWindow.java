@@ -1,8 +1,5 @@
 package com.company.view.window;
 
-
-import com.company.controller.ControllerInterface;;
-
 import javax.swing.*;
 import java.awt.event.WindowEvent;
 
@@ -64,24 +61,6 @@ public abstract class AbstractJFrameWindow extends JFrame implements WindowInter
         super.setDefaultCloseOperation(closeOperation);
         super.setVisible(isVisible);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getTitle() { return super.getTitle(); }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getWidth() { return super.getWidth(); }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getHeight() { return super.getHeight(); }
 
     /**
      * {@inheritDoc}

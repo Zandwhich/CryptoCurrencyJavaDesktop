@@ -4,6 +4,7 @@ import com.company.api_call.APICallerContract;
 import com.company.api_call.AbstractAPICaller;
 import com.company.tool.enums.currency.CryptoCurrencies;
 import com.company.tool.enums.currency.FiatCurrencies;
+import com.company.tool.exception.BadData;
 import com.company.tool.exception.currency_not_supported.CryptoCurrencyNotSupported;
 import com.company.tool.exception.currency_not_supported.FiatCurrencyNotSupported;
 import json_simple.JSONObject;
@@ -67,34 +68,15 @@ final public class CoinCap extends AbstractAPICaller {
 
     @Override
     protected double extractPrice(final JSONObject jsonObject, final CryptoCurrencies crypto, final FiatCurrencies fiat)
-            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
+            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported, BadData {
         super.throwIfNotAcceptedCurrency(crypto, fiat);
 
-        final JSONObject data = (JSONObject) jsonObject.get("data");
+        try {
+            final JSONObject data = (JSONObject) jsonObject.get("data");
 
-        // TODO: Should throw an error here?
-        if (data == null) return -1;
-
-        return Double.parseDouble((String) data.get("rateUsd"));
-    }
-
-    /**
-     * Returns if the given fiat currency can be used with CoinCap
-     * @param fiatCurrency The given fiat currency
-     * @return If the given fiat currency can be used with CoinCap
-     */
-    public static boolean endpointCanUseFiatCurrency(final FiatCurrencies fiatCurrency)
-    {
-        return AbstractAPICaller.canUseCurrency(CoinCap.ACCEPTED_FIAT_CURRENCIES, fiatCurrency);
-    }
-
-    /**
-     * Returns if the given cryptocurrency can be used with CoinCap
-     * @param cryptoCurrency The given cryptocurrency
-     * @return If the given cryptocurrency can be used with CoinCap
-     */
-    public static boolean endpointCanUseCryptoCurrency(final CryptoCurrencies cryptoCurrency)
-    {
-        return AbstractAPICaller.canUseCurrency(CoinCap.ACCEPTED_CRYPTOCURRENCIES, cryptoCurrency);
+            return Double.parseDouble((String) data.get("rateUsd"));
+        } catch (final Exception e) {
+            throw new BadData(e, this);
+        }
     }
 }

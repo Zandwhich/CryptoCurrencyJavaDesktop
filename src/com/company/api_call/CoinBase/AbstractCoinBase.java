@@ -4,7 +4,7 @@ import com.company.api_call.APICallerContract;
 import com.company.api_call.AbstractAPICaller;
 import com.company.tool.enums.currency.CryptoCurrencies;
 import com.company.tool.enums.currency.FiatCurrencies;
-import com.company.tool.exception.currency_not_supported.AbstractCurrencyNotSupported;
+import com.company.tool.exception.BadData;
 import com.company.tool.exception.currency_not_supported.CryptoCurrencyNotSupported;
 import com.company.tool.exception.currency_not_supported.FiatCurrencyNotSupported;
 import json_simple.JSONObject;
@@ -62,15 +62,14 @@ public abstract class AbstractCoinBase extends AbstractAPICaller {
 
     @Override
     protected double extractPrice(final JSONObject jsonObject, final CryptoCurrencies crypto, final FiatCurrencies fiat)
-            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
+            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported, BadData {
         super.throwIfNotAcceptedCurrency(crypto, fiat);
 
-        final JSONObject data = (JSONObject) jsonObject.get("data");
-
-        // TODO: Should throw an error here?
-        if (data == null || !data.containsKey("amount")) return -1;
-
-        return Double.parseDouble((String) data.get("amount"));
+        try {
+            return Double.parseDouble(((String) ((JSONObject) jsonObject.get("data")).get("amount")));
+        } catch (final Exception e) {
+            throw new BadData(e, this);
+        }
     }
 
     @Override
@@ -79,25 +78,5 @@ public abstract class AbstractCoinBase extends AbstractAPICaller {
         this.throwIfNotAcceptedCurrency(crypto, fiat);
 
         return AbstractCoinBase.BASE_URL + crypto.getAbbreviatedName() + "-" + fiat.getAbbreviatedName() + this.urlExt;
-    }
-
-    /**
-     * Returns if the given fiat currency can be used with CoinBase
-     * @param fiatCurrency The given fiat currency
-     * @return If the given fiat currency can be used with CoinBase
-     */
-    public static boolean endpointCanUseFiatCurrency(final FiatCurrencies fiatCurrency)
-    {
-        return AbstractAPICaller.canUseCurrency(AbstractCoinBase.ACCEPTED_FIAT_CURRENCIES, fiatCurrency);
-    }
-
-    /**
-     * Returns if the given cryptocurrency can be used with CoinBase
-     * @param cryptoCurrency The given cryptocurrency
-     * @return If the given cryptocurrency can be used with CoinBase
-     */
-    public static boolean endpointCanUseCryptoCurrency(final CryptoCurrencies cryptoCurrency)
-    {
-        return AbstractAPICaller.canUseCurrency(AbstractCoinBase.ACCEPTED_CRYPTO_CURRENCIES, cryptoCurrency);
     }
 }

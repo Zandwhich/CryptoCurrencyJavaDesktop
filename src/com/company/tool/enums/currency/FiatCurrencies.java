@@ -348,10 +348,8 @@ public enum FiatCurrencies implements Currency {
     public static int indexOf(final String fiatCurrency) {
         final String[] array = FiatCurrencies.toStringArray();
         for (int i = 0; i < array.length; i++) {
-            System.out.println("Comparing " + fiatCurrency + " and " + array[i]);
             if (array[i].equals(fiatCurrency)) return i;
         }
-        System.out.println("Returning -1");
         return -1;
     }
 

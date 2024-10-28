@@ -4,6 +4,7 @@ import com.company.api_call.APICallerContract;
 import com.company.api_call.AbstractAPICaller;
 import com.company.tool.enums.currency.CryptoCurrencies;
 import com.company.tool.enums.currency.FiatCurrencies;
+import com.company.tool.exception.BadData;
 import com.company.tool.exception.currency_not_supported.CryptoCurrencyNotSupported;
 import com.company.tool.exception.currency_not_supported.FiatCurrencyNotSupported;
 import json_simple.JSONObject;
@@ -73,39 +74,20 @@ final public class CoinMarketCap extends AbstractAPICaller {
 
     @Override
     protected double extractPrice(final JSONObject jsonObject, final CryptoCurrencies crypto, final FiatCurrencies fiat)
-            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
+            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported, BadData {
         super.throwIfNotAcceptedCurrency(crypto, fiat);
 
-        final JSONObject data = (JSONObject) jsonObject.get("data");
-
-        if (data == null) return -1; // TODO: Throw an error
-
-        final JSONObject quotes = (JSONObject) data.get("quotes");
-
-        if (quotes == null) return -1; // TODO: Throw an error
-
-        final JSONObject fiat_json = (JSONObject) quotes.get(fiat.getAbbreviatedName());
-
-        return fiat_json == null ? -1 /* TODO: Throw an error */ : (double) fiat_json.get("price");
-    }
-
-    /**
-     * Returns if the given fiat currency can be used with CoinMarketCap
-     *
-     * @param fiatCurrency The given fiat currency
-     * @return If the given fiat currency can be used with CoinMarketCap
-     */
-    public static boolean endpointCanUseFiatCurrency(final FiatCurrencies fiatCurrency) {
-        return AbstractAPICaller.canUseCurrency(CoinMarketCap.ACCEPTED_FIAT_CURRENCIES, fiatCurrency);
-    }
-
-    /**
-     * Returns if the given cryptocurrency can be used with CoinMarketCap
-     *
-     * @param cryptoCurrency The given cryptocurrency
-     * @return If the given cryptocurrency can be used with CoinMarketCap
-     */
-    public static boolean endpointCanUseCryptoCurrency(final CryptoCurrencies cryptoCurrency) {
-        return AbstractAPICaller.canUseCurrency(CoinMarketCap.ACCEPTED_CRYPTO_CURRENCIES, cryptoCurrency);
+        try {
+            return (double)
+                    ((JSONObject)
+                            ((JSONObject)
+                                    ((JSONObject) jsonObject
+                                            .get("data"))
+                                            .get("quotes"))
+                                    .get(fiat.getAbbreviatedName()))
+                            .get("price");
+        } catch (final Exception e) {
+            throw new BadData(e, this);
+        }
     }
 }

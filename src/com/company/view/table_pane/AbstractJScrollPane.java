@@ -58,7 +58,6 @@ abstract public class AbstractJScrollPane extends JScrollPane implements TablePa
      */
     private void setup(final Vector<String> columns, final Vector<Vector<String>> data) {
         // TODO: Further, this is where you left off. You're trying to figure out why the columns names get overridden
-        System.out.println("So these are the columns:\n" + columns.toString());
         this.columns = columns;
         this.data = data;
         this.table = new JTable(this.data, this.columns);

@@ -24,7 +24,7 @@ final public class RefreshJButton extends AbstractJButtonButton implements Refre
     /**
      * The controller that implements the contract for the refresh button
      */
-    private RefreshButtonContractInterface controller;
+    private final RefreshButtonContractInterface controller;
 
 
     /* ************ *

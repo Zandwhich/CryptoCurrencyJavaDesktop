@@ -6,6 +6,7 @@ import com.company.tool.enums.Errors;
 import com.company.tool.enums.currency.CryptoCurrencies;
 import com.company.tool.enums.currency.Currency;
 import com.company.tool.enums.currency.FiatCurrencies;
+import com.company.tool.exception.BadData;
 import com.company.tool.exception.currency_not_supported.CryptoCurrencyNotSupported;
 import com.company.tool.exception.currency_not_supported.FiatCurrencyNotSupported;
 import json_simple.JSONObject;
@@ -86,12 +87,13 @@ public abstract class AbstractAPICaller implements APICallerInterface {
 
     /**
      * Gets the price from the JSON object which was returned from a call
+     *
      * @param jsonObject The returned, parsed JSON object from the call
-     * @return The price extracted from the JSON object. If it is -1, there was a failure in retrieving the price
+     * @return The price extracted from the JSON object.
      */
     protected abstract double extractPrice(final JSONObject jsonObject, final CryptoCurrencies crypto,
                                            final FiatCurrencies fiat)
-            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported;
+            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported, BadData;
 
     @Override
     public boolean canUseCryptoCurrency(final CryptoCurrencies crypto) {
@@ -156,8 +158,15 @@ public abstract class AbstractAPICaller implements APICallerInterface {
             throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
 
         this.setIsUpdatingAndNotify(crypto, fiat, true);
-        final double newPrice = this.getNewPrice(crypto, fiat);
-        this.setNewPriceAndNotify(crypto, fiat, newPrice);
+        try {
+            final double newPrice = this.getNewPrice(crypto, fiat);
+            this.setNewPriceAndNotify(crypto, fiat, newPrice);
+        } catch (final BadData exception) {
+            // TODO: The flow here is off. We're not properly updating the memory to say if it's
+            //  failed the update
+            this.setIsUpdatingAndNotify(crypto, fiat, false);
+        }
+
     }
 
     private void setIsUpdatingAndNotify(final CryptoCurrencies crypto, final FiatCurrencies fiat,
@@ -169,7 +178,7 @@ public abstract class AbstractAPICaller implements APICallerInterface {
     }
 
     private double getNewPrice(final CryptoCurrencies crypto, final FiatCurrencies fiat)
-            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
+            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported, BadData {
 
         final JSONObject response = this.getRequestCall(crypto, fiat);
         return this.extractPrice(response, crypto, fiat);
@@ -179,13 +188,10 @@ public abstract class AbstractAPICaller implements APICallerInterface {
     private void setNewPriceAndNotify(final CryptoCurrencies crypto, final FiatCurrencies fiat, final double price)
             throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
 
-        System.out.println("For " + this.name + " updating memory stuff for the following values: " +
-                "crypto: " + crypto.getAbbreviatedName() + " fiat: " + fiat.getAbbreviatedName() + " price: " + price);
         this.memory.setUpdating(crypto, fiat, false);
         if (price != -1) this.memory.setPrice(crypto, fiat, price);
         if (price != -1) this.memory.setLastSuccessfulUpdated(crypto, fiat, LocalDateTime.now());
         this.memory.setWasLastUpdateSuccessful(crypto, fiat, price != -1);
-        System.out.println("About to call the controller back for " + this.name);
         this.controller.notifyPriceSet(this, crypto, fiat, price, price != -1,
                 this.memory.getLastSuccessfulUpdated(crypto, fiat));
     }
@@ -205,7 +211,7 @@ public abstract class AbstractAPICaller implements APICallerInterface {
          */
 
         JSONObject jsonObject;
-        URLConnection connection = null;
+        URLConnection connection;
         BufferedReader in = null;
         try {
             // Set up the connection and get the input stream

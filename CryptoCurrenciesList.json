@@ -1,6 +1,3 @@
-// A list of cryptocurrencies received from http://coincap.io/map so that I could put them in
-//   the CryptoCurrencies.java enum
-// Note: Remove this comment when actually using this file
 {
   "data":
   [

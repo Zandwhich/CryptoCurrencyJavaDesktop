@@ -14,6 +14,8 @@ import com.company.controller.AbstractController;
 import com.company.tool.exception.currency_not_supported.AbstractCurrencyNotSupported;
 import com.company.view.window.about.AboutJFrameWindow;
 import com.company.view.window.error.endpoint_update_error.EndpointUpdateErrorWindow;
+import com.company.view.window.error.bad_data_error.BadDataErrorWindow;
+import com.company.view.window.error.default_error.DefaultErrorWindow;
 import com.company.view.window.error.network_error.NetworkErrorWindow;
 import com.company.view.window.error.parse_error.ParseErrorWindow;
 import com.company.view.window.main.MainJFrameWindow;
@@ -116,7 +118,6 @@ final public class MainController extends AbstractController implements MainCont
         for (final APICallerInterface endpoint : this.endpointList) {
             new Thread(() -> {
                 try {
-                    System.out.println("About to update " + endpoint.getName());
                     endpoint.updatePriceAndNotify(this.currentCrypto, this.currentFiat);
                 } catch (final AbstractCurrencyNotSupported e) {
                     // TODO: Remove this endpoint from the display
@@ -140,6 +141,11 @@ final public class MainController extends AbstractController implements MainCont
                 return;
             case PARSE_ERROR:
                 new ParseErrorWindow(this, name, crypto, fiat);
+            case BAD_DATA:
+                new BadDataErrorWindow(this, name);
+                return;
+            default:
+                new DefaultErrorWindow(this);
         }
     }
 
@@ -155,6 +161,11 @@ final public class MainController extends AbstractController implements MainCont
                 return;
             case PARSE_ERROR:
                 new ParseErrorWindow(this);
+            case BAD_DATA:
+                new BadDataErrorWindow(this, "");
+                return;
+            default:
+                new DefaultErrorWindow(this);
         }
     }
 
