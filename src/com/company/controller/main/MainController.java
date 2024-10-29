@@ -172,15 +172,35 @@ final public class MainController extends AbstractController implements MainCont
     @Override
     public void updateFiatCurrency(final FiatCurrencies fiatCurrency) {
         this.currentFiat = fiatCurrency;
+
+        for (final APICallerInterface endpoint : this.endpointList) {
+            try {
+                this.notifyPriceSet(endpoint, this.currentCrypto, this.currentFiat, endpoint.getPrice(this.currentCrypto, this.currentFiat), endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat) != null, endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat));
+            } catch (final AbstractCurrencyNotSupported exception) {
+                // TODO: Remove this endpoint from the display
+                // TODO: Should we do this better? Loop through and determine first which endpoints to display? And
+                //  not catch it via an exception?
+            }
+        }
     }
 
     @Override
     public void updateCryptocurrency(final CryptoCurrencies cryptoCurrency) {
         this.currentCrypto = cryptoCurrency;
+
+        for (final APICallerInterface endpoint : this.endpointList) {
+            try {
+                this.notifyPriceSet(endpoint, this.currentCrypto, this.currentFiat, endpoint.getPrice(this.currentCrypto, this.currentFiat), endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat) != null, endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat));
+            } catch (final AbstractCurrencyNotSupported exception) {
+                // TODO: Remove this endpoint from the display
+                // TODO: Should we do this better? Loop through and determine first which endpoints to display? And
+                //  not catch it via an exception?
+            }
+        }
     }
 
     @Override
-    public void notifyUpdating(final AbstractAPICaller endpoint, final CryptoCurrencies crypto,
+    public void notifyUpdating(final APICallerInterface endpoint, final CryptoCurrencies crypto,
                                final FiatCurrencies fiat, final boolean isUpdating) {
         // First, check if this is still for the current crypto/fiat combination
         if (crypto == this.currentCrypto && fiat == this.currentFiat)
@@ -188,7 +208,7 @@ final public class MainController extends AbstractController implements MainCont
     }
 
     @Override
-    public void notifyPriceSet(final AbstractAPICaller endpoint, final CryptoCurrencies crypto,
+    public void notifyPriceSet(final APICallerInterface endpoint, final CryptoCurrencies crypto,
                                final FiatCurrencies fiat, final double price, final boolean isSuccessful,
                                final LocalDateTime lastUpdated) {
         // First, check if this is still for the current crypto/fiat combination
