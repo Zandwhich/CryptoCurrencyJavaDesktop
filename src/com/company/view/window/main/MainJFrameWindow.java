@@ -207,7 +207,11 @@ final public class MainJFrameWindow extends AbstractJFrameWindow implements Main
         }
 
         website.set(1, String.valueOf(price));
-        website.set(3, lastUpdated.toLocalTime().truncatedTo(ChronoUnit.SECONDS).toString());
+        try {
+            website.set(3, lastUpdated.toLocalTime().truncatedTo(ChronoUnit.SECONDS).toString());
+        } catch (final NullPointerException exception) {
+            website.set(3, "Never");
+        }
     }
 
     @Override

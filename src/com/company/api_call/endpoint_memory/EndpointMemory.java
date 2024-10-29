@@ -49,7 +49,11 @@ final public class EndpointMemory implements EndpointMemoryInterface {
     @Override
     public double getPrice(final CryptoCurrencies crypto, final FiatCurrencies fiat)
             throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
-        return this.getDataFromMap(crypto, fiat).getPrice();
+        try {
+            return this.getDataFromMap(crypto, fiat).getPrice();
+        } catch (final NullPointerException exception) {
+            return 0;
+        }
     }
 
     @Override
@@ -67,13 +71,22 @@ final public class EndpointMemory implements EndpointMemoryInterface {
     @Override
     public void setUpdating(final CryptoCurrencies crypto, final FiatCurrencies fiat, boolean isUpdating)
             throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
-        this.getDataFromMap(crypto, fiat).setUpdating(isUpdating);
+        try {
+            this.getDataFromMap(crypto, fiat).setUpdating(isUpdating);
+        } catch (final NullPointerException ignored) {
+            // TODO: Figure out what to do here (my god this whole thing is one large spaghetti mess)
+        }
+
     }
 
     @Override
     public LocalDateTime getLastSuccessfulUpdated(final CryptoCurrencies crypto, final FiatCurrencies fiat)
             throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
-        return this.getDataFromMap(crypto, fiat).getLastSuccessfulUpdate();
+        try {
+            return this.getDataFromMap(crypto, fiat).getLastSuccessfulUpdate();
+        } catch (final NullPointerException exception) {
+            return LocalDateTime.MIN;
+        }
     }
 
     @Override
