@@ -4,23 +4,18 @@ import com.company.tool.enums.currency.CryptoCurrencies;
 import com.company.tool.enums.currency.FiatCurrencies;
 import com.company.view.window.WindowInterface;
 
+import java.time.LocalDateTime;
+
 /**
  * The intractable interface for the main window
  */
 public interface MainWindowInterface extends WindowInterface {
 
-    /**
-     * Fetches the latest prices and updates the window with the new prices
-     */
-    void updatePrices();
+    void updatePrice(final String name, final double price, final boolean isSuccessful, final LocalDateTime lastUpdate);
 
-    /**
-     * Updates a single endpoint's price and success icon
-     * @param name The name of the endpoint (used to identify the endpoint in the table)
-     * @param price The new price of the endpoint
-     * @param hasSucceeded If the call to update the price succeeded or not
-     */
-    void updatePrice(final String name, final double price, final boolean hasSucceeded);
+    void setRefreshing(final String name);
+
+    void clear();
 
     /**
      * Sets the endpoints that this table will have. (This is normally done at the beginning of the program.)

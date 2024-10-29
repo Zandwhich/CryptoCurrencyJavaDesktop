@@ -17,12 +17,14 @@ final public class MainJScrollPane extends AbstractJScrollPane implements MainTa
     /**
      * The array that the main table column headers are made from because Vectors are dumb
      */
-    private static final String[] DEFAULT_COLUMN_HEADERS_ARRAY = {"Website", "Price"};
+    private static final String[] DEFAULT_COLUMN_HEADERS_ARRAY =
+            { "Website", "Price", "Status", "Last Successfully Updated" };
 
     /**
      * The default column headers for the main table
      */
-    public static final Vector<String> DEFAULT_COLUMN_HEADERS = new Vector<>(Arrays.asList(MainJScrollPane.DEFAULT_COLUMN_HEADERS_ARRAY));
+    public static final Vector<String> DEFAULT_COLUMN_HEADERS =
+            new Vector<>(Arrays.asList(MainJScrollPane.DEFAULT_COLUMN_HEADERS_ARRAY));
 
 
     /* ************ *

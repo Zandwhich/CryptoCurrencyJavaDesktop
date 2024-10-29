@@ -26,7 +26,7 @@ final public class CoinCap extends AbstractAPICaller {
     /**
      * The base name for the endpoint
      */
-    private final static String BASE_NAME = "CoinCap ";
+    private final static String NAME = "CoinCap";
 
     /**
      * The accepted cryptocurrencies for CoinCap
@@ -45,26 +45,12 @@ final public class CoinCap extends AbstractAPICaller {
      * ************ */
 
     /**
-     * The constructor for the basic CoinCap requests
-     * @param cryptoCurrency The cryptocurrency
-     * @param fiatCurrency The fiat currency
-     * @param controller The controller that implements the required methods
-     */
-    public CoinCap(final CryptoCurrencies cryptoCurrency, final FiatCurrencies fiatCurrency,
-                   final APICallerContract controller)
-            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
-        super(cryptoCurrency, fiatCurrency, CoinCap.ACCEPTED_CRYPTOCURRENCIES, CoinCap.ACCEPTED_FIAT_CURRENCIES,
-                CoinCap.BASE_NAME, CoinCap.urlBuilder(cryptoCurrency, fiatCurrency), controller);
-    }
-
-    /**
      * The constructor for CoinCap when a cryptocurrency and a fiat currency aren't specified (most likely when the
      * currency is not supported for the given endpoint)
      * @param controller The controller that implements the required methods
      */
     public CoinCap(final APICallerContract controller) {
-        super(CoinCap.ACCEPTED_CRYPTOCURRENCIES, CoinCap.ACCEPTED_FIAT_CURRENCIES, CoinCap.BASE_NAME,
-                CoinCap.urlBuilder(null, null), controller);
+        super(CoinCap.ACCEPTED_CRYPTOCURRENCIES, CoinCap.ACCEPTED_FIAT_CURRENCIES, CoinCap.NAME, controller);
     }
 
 
@@ -72,40 +58,19 @@ final public class CoinCap extends AbstractAPICaller {
      *   Methods    *
      * ************ */
 
-    /**
-     * A function through which to create the URL for the given currency outside the constructor
-     * @param cryptoCurrency The cryptocurrency
-     * @param fiatCurrency The fiat currency
-     * @return The url to be used for the endpoint
-     */
-    private static String urlBuilder(final CryptoCurrencies cryptoCurrency, final FiatCurrencies fiatCurrency) {
-        return cryptoCurrency == null || fiatCurrency == null ?
-                null :
-                CoinCap.BASE_URL + cryptoCurrency.getFullName().toLowerCase();
-    }
+    @Override
+    protected String createURLStringForCall(final CryptoCurrencies crypto, final FiatCurrencies fiat)
+            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
+        super.throwIfNotAcceptedCurrency(crypto, fiat);
 
-    /**
-     * Returns if the given fiat currency can be used with CoinCap
-     * @param fiatCurrency The given fiat currency
-     * @return If the given fiat currency can be used with CoinCap
-     */
-    public static boolean endpointCanUseFiatCurrency(final FiatCurrencies fiatCurrency)
-    {
-        return AbstractAPICaller.canUseCurrency(CoinCap.ACCEPTED_FIAT_CURRENCIES, fiatCurrency);
-    }
-
-    /**
-     * Returns if the given cryptocurrency can be used with CoinCap
-     * @param cryptoCurrency The given cryptocurrency
-     * @return If the given cryptocurrency can be used with CoinCap
-     */
-    public static boolean endpointCanUseCryptoCurrency(final CryptoCurrencies cryptoCurrency)
-    {
-        return AbstractAPICaller.canUseCurrency(CoinCap.ACCEPTED_CRYPTOCURRENCIES, cryptoCurrency);
+        return CoinCap.BASE_URL + crypto.getFullName().toLowerCase();
     }
 
     @Override
-    protected double extractPrice(final JSONObject jsonObject) throws BadData {
+    protected double extractPrice(final JSONObject jsonObject, final CryptoCurrencies crypto, final FiatCurrencies fiat)
+            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported, BadData {
+        super.throwIfNotAcceptedCurrency(crypto, fiat);
+
         try {
             final JSONObject data = (JSONObject) jsonObject.get("data");
 
@@ -113,19 +78,5 @@ final public class CoinCap extends AbstractAPICaller {
         } catch (final Exception e) {
             throw new BadData(e, this);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     * </p>
-     * In addition, it also updates the endpoint
-     * @param cryptoCurrency The cryptocurrency to be used for this endpoint
-     */
-    @Override
-    public void setCryptoCurrency(final CryptoCurrencies cryptoCurrency) throws CryptoCurrencyNotSupported {
-        super.setCryptoCurrency(cryptoCurrency);
-        super.updateUrl(cryptoCurrency == null ?
-                null :
-                CoinCap.BASE_URL + cryptoCurrency.getFullName().toLowerCase());
     }
 }

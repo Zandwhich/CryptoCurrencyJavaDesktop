@@ -7,7 +7,9 @@ package com.company.tool.enums;
  */
 public enum Errors {
 
-    NETWORK_CONNECTION,
-    BAD_DATA
+    ENDPOINT_UPDATE_ERROR,
+    NETWORK_ERROR,
+    PARSE_ERROR,
+    BAD_DATA,
 
 }

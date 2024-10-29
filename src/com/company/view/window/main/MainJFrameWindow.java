@@ -14,6 +14,8 @@ import com.company.view.button.refresh.RefreshButtonInterface;
 import com.company.view.window.AbstractJFrameWindow;
 
 import javax.swing.*;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -150,46 +152,78 @@ final public class MainJFrameWindow extends AbstractJFrameWindow implements Main
         this.panel.add((JScrollPane) this.table);
         this.add(this.panel);
 
-        this.updatePrices();
+
         this.setVisible(MainJFrameWindow.DEFAULT_VISIBILITY);
     }
 
     @Override
     public void updateDropdowns(final CryptoCurrencies currentCrypto, final FiatCurrencies currentFiat) {
+        // TODO: This should be done in dropdowns
         this.cryptoDropdown.setSelectedItem(currentCrypto.getAbbreviatedName());
         this.fiatDropdown.setSelectedItem(currentFiat.getAbbreviatedName());
     }
 
     @Override
-    public void updatePrice(final String name, final double price, final boolean hasSucceeded) {
-        for (final Vector<String> website : this.data) {
-            if (website.firstElement().equals(name)) {
-                website.set(1, String.valueOf(price));
-            }
-        }
+    public void clear() {
+        this.data.clear();
+        // TODO: This should be done in the main table
         this.table.setData(this.data);
     }
 
+    // TODO: This should be done in the main table
     @Override
-    public void updatePrices() {
-        final ArrayList<APICallerInterface> websites = this.mainController.getEndpointList();
-        this.data.clear();
+    public void setRefreshing(final String name) {
 
-        // TODO: Clean this up a bit?
-        for (final APICallerInterface website : websites) {
-            final Vector<String> websiteVec = new Vector<>();
-            websiteVec.add(website.getName());
-            websiteVec.add("" + website.getPrice());
-            this.data.add(websiteVec);
+        for (final Vector<String> website : this.data) {
+            if (website.firstElement().equals(name)) {
+                website.set(2, "Refreshing");
+                this.table.setData(this.data);
+                return;
+            }
         }
-        this.table.setData(this.data);
+    }
+
+    // TODO: There should probably be a better way to update this
+    // TODO: This should be done in the main table
+    @Override
+    public void updatePrice(final String name, final double price, final boolean hasSucceeded,
+                            final LocalDateTime lastUpdated) {
+        for (final Vector<String> website : this.data) {
+            if (website.firstElement().equals(name)) {
+                this.setVectorizedWebsite(website, price, hasSucceeded, lastUpdated);
+                this.table.setData(this.data);
+                return;
+            }
+        }
+    }
+
+    private void setVectorizedWebsite(final Vector<String> website, final double price, final boolean hasSucceeded,
+                                      final LocalDateTime lastUpdated) {
+        // TODO: This should be moved into the table
+        if (hasSucceeded) {
+            website.set(2, "Successful");
+        } else {
+            website.set(2, "Failed");
+        }
+
+        website.set(1, String.valueOf(price));
+        try {
+            website.set(3, lastUpdated.toLocalTime().truncatedTo(ChronoUnit.SECONDS).toString());
+        } catch (final NullPointerException exception) {
+            website.set(3, "Never");
+        }
     }
 
     @Override
     public void setEndpoints(final Iterable<String> endpointNames) {
+        // TODO: This should be moved into the table
+        this.clear();
+
         for (final String name : endpointNames) {
             final Vector<String> endpointVec = new Vector<>();
             endpointVec.add(name);
+            endpointVec.add("");
+            endpointVec.add("Nothing");
             endpointVec.add("");
             this.data.add(endpointVec);
         }

@@ -10,15 +10,6 @@ import java.net.URLConnection;
  */
 public abstract class AbstractController implements  ControllerInterface {
 
-    /* ************ *
-     *    Fields    *
-     * ************ */
-
-    /**
-     * Variable to denote if connected to the internet
-     */
-    private static boolean isConnected = false;
-
 
     /* ************ *
      * Constructors *
@@ -35,22 +26,6 @@ public abstract class AbstractController implements  ControllerInterface {
      * ************ */
 
     /**
-     * Sets if the application is connected to the internet
-     * @param isConnected The connection to the internet
-     */
-    protected void setConnected(final boolean isConnected) {
-        AbstractController.isConnected = isConnected;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isConnected() {
-        return isConnected;
-    }
-
-    /**
      * Checks the internet connection and returns if it is connected or not
      * Also alters the field isConnected
      * Currently just checks if it can hit yahoo.com
@@ -59,7 +34,7 @@ public abstract class AbstractController implements  ControllerInterface {
      */
     @Override
     public boolean checkConnection() {
-        boolean internet = true;
+        boolean internet = false;
         final String yahoo = "https://yahoo.com";
         URL url;
         try {
@@ -75,14 +50,12 @@ public abstract class AbstractController implements  ControllerInterface {
             assert url != null;
             final URLConnection connection = url.openConnection();
             connection.connect();
+            internet = true;
         }
         catch (final IOException exception) {
             // Failed to connect to yahoo
-            internet = false;
         }
 
-        AbstractController.isConnected = internet;
-        return this.isConnected();
+        return internet;
     }
-
 }

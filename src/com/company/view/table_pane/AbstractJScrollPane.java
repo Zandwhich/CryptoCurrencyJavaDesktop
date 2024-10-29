@@ -49,12 +49,15 @@ abstract public class AbstractJScrollPane extends JScrollPane implements TablePa
      *    Methods   *
      * ************ */
 
+    // TODO: Alex this is where you left off, you need to update the table so that it will update
+
     /**
      * Abstracted setup method to be used by all constructors
      * @param columns The columns of the table
      * @param data The data of the table
      */
-    private  void setup(final Vector<String> columns, final Vector<Vector<String>> data) {
+    private void setup(final Vector<String> columns, final Vector<Vector<String>> data) {
+        // TODO: Further, this is where you left off. You're trying to figure out why the columns names get overridden
         this.columns = columns;
         this.data = data;
         this.table = new JTable(this.data, this.columns);
@@ -71,15 +74,7 @@ abstract public class AbstractJScrollPane extends JScrollPane implements TablePa
      * @param data The data as a matrix of strings
      */
     private void updateData(final Vector<Vector<String>> data) {
-        final DefaultTableModel tableModel = new DefaultTableModel();
-        for (int i = 0; i < this.table.getModel().getColumnCount(); i++) {
-            tableModel.addColumn(this.table.getColumnName(i));
-        }
-        for (final Vector<String> row : data) {
-            tableModel.addRow(row);
-        }
-
-        this.table.setModel(tableModel);
+        this.table.setModel(new DefaultTableModel(data, this.columns));
         super.setViewportView(this.table);
     }
 

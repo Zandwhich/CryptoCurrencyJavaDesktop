@@ -1,7 +1,7 @@
 package com.company.controller.main;
 
 import com.company.api_call.APICallerInterface;
-import com.company.api_call.CoinBase.AbstractCoinBase;
+import com.company.api_call.AbstractAPICaller;
 import com.company.api_call.CoinBase.CoinBaseBuy;
 import com.company.api_call.CoinBase.CoinBaseSell;
 import com.company.api_call.CoinBase.CoinBaseSpot;
@@ -13,12 +13,15 @@ import com.company.tool.enums.currency.FiatCurrencies;
 import com.company.controller.AbstractController;
 import com.company.tool.exception.currency_not_supported.AbstractCurrencyNotSupported;
 import com.company.view.window.about.AboutJFrameWindow;
+import com.company.view.window.error.endpoint_update_error.EndpointUpdateErrorWindow;
 import com.company.view.window.error.bad_data_error.BadDataErrorWindow;
 import com.company.view.window.error.default_error.DefaultErrorWindow;
 import com.company.view.window.error.network_error.NetworkErrorWindow;
+import com.company.view.window.error.parse_error.ParseErrorWindow;
 import com.company.view.window.main.MainJFrameWindow;
 import com.company.view.window.main.MainWindowInterface;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -39,12 +42,12 @@ final public class MainController extends AbstractController implements MainCont
     /**
      * The currently selected fiat currency
      */
-    private FiatCurrencies currentFiat = FiatCurrencies.EUR;
+    private FiatCurrencies currentFiat = FiatCurrencies.USD;
 
     /**
      * The currently selected cryptocurrency
      */
-    private CryptoCurrencies currentCrypto = CryptoCurrencies.LTC;
+    private CryptoCurrencies currentCrypto = CryptoCurrencies.BTC;
 
     /**
      * The main window of the application
@@ -65,29 +68,15 @@ final public class MainController extends AbstractController implements MainCont
         this.mainWindow.updateDropdowns(this.currentCrypto, this.currentFiat);
 
         /* CoinBase */
-        try {
-            endpointList.add(new CoinBaseBuy(this.currentCrypto, this.currentFiat, this));
-            endpointList.add(new CoinBaseSell(this.currentCrypto, this.currentFiat, this));
-            endpointList.add(new CoinBaseSpot(this.currentCrypto, this.currentFiat, this));
-        } catch (final AbstractCurrencyNotSupported exception) {
-            endpointList.add(new CoinBaseBuy(this));
-            endpointList.add(new CoinBaseSell(this));
-            endpointList.add(new CoinBaseSell(this));
-        }
+        endpointList.add(new CoinBaseBuy(this));
+        endpointList.add(new CoinBaseSell(this));
+        endpointList.add(new CoinBaseSpot(this));
 
         /* CoinCap */
-        try {
-            endpointList.add(new CoinCap(this.currentCrypto, this.currentFiat, this));
-        } catch (final AbstractCurrencyNotSupported exception) {
-            endpointList.add(new CoinCap(this));
-        }
+        endpointList.add(new CoinCap(this));
 
         /* CryptoCompare */
-        try {
-            endpointList.add(new CryptoCompare(this.currentCrypto, this.currentFiat, this));
-        } catch (final AbstractCurrencyNotSupported exception) {
-            endpointList.add(new CryptoCompare(this));
-        }
+        endpointList.add(new CryptoCompare(this));
 
         this.mainWindow.setEndpoints(
                 endpointList
@@ -103,101 +92,55 @@ final public class MainController extends AbstractController implements MainCont
      *    Methods   *
      * ************ */
 
-    /**
-     * Because the logic for changing either cryptocurrency or fiat currency is the same, have one method
-     * that both methods call
-     * </p>
-     * TODO: Should we split this up into two functions: one for the cryptocurrency and one for the fiat currency?
-     */
-    private void updateChangedCurrency() {
-        for (final APICallerInterface website : this.endpointList) {
-            try {
-                website.setCryptoCurrency(this.currentCrypto);
-                website.setFiatCurrency(this.currentFiat);
-                website.setActive(true);
-            } catch (final AbstractCurrencyNotSupported e) {
-                website.setCryptoCurrencyToNull();
-                website.setFiatCurrencyToNull();
-                website.setActive(false);
-            }
-        }
-
-        this.refresh();
-    }
-
-    /**
-     * Changes the fiat currency that is being used in each of the endpoints
-     */
-    private void updateWebsiteFiat() {
-        new Thread(this::updateChangedCurrency).start();
-    }
-
-    /**
-     * Changes the cryptocurrency that is being used in each of the endpoints
-     */
-    private void updateWebsitesCrypto() {
-        new Thread(this::updateChangedCurrency).start();
-    }
-
     @Override
     public ArrayList<APICallerInterface> getEndpointList() { return this.endpointList; }
-
-    @Override
-    public FiatCurrencies getCurrentFiat() {
-        return this.currentFiat;
-    }
-
-    @Override
-    public CryptoCurrencies getCurrentCrypto() {
-        return this.currentCrypto;
-    }
 
     /**
      * The method to be run on a near-infinite loop to run the program
      */
     public void run() {
       
-        while (true) {
-            // System.out.println("Current window location: (" + this.mainWindow.getLocationX() + ", " + this.mainWindow.getLocationY() + ")");
-        }
+        while (true) { }
 
     }
 
     @Override
     public void refresh() {
         super.checkConnection();
-        if (!super.isConnected()) this.errorDisplay(Errors.NETWORK_CONNECTION);
+
+        // TODO: Maybe don't check the internet connection every time...
+        if (!super.checkConnection()) this.errorDisplay(Errors.NETWORK_ERROR);
         else this.updatePrices();
     }
 
     @Override
     public void updatePrices() {
-        for (final APICallerInterface website : this.endpointList) {
-            new Thread(website::updatePriceAndNotify).start();
+        for (final APICallerInterface endpoint : this.endpointList) {
+            new Thread(() -> {
+                try {
+                    endpoint.updatePriceAndNotify(this.currentCrypto, this.currentFiat);
+                } catch (final AbstractCurrencyNotSupported e) {
+                    // TODO: Remove this endpoint from the display
+                    // TODO: Should we do this better? Loop through and determine first which endpoints to display? And
+                    //  not catch it via an exception?
+                }
+            }).start();
         }
-
-        // this.updateViewPrices();
     }
 
     @Override
-    public void updatePrice(final String name, final double price, final boolean hasSucceeded) {
-        this.mainWindow.updatePrice(name, price, hasSucceeded);
-    }
-
-    /**
-     * Updates the prices in the view
-     */
-    public void updateViewPrices() {
-        this.mainWindow.updatePrices();
-    }
-
-    @Override
-    public void errorDisplay(final Errors error, final String name) {
+    public void errorDisplay(final Errors error, final String name, final CryptoCurrencies crypto,
+                             final FiatCurrencies fiat) {
 
         switch (error) {
-            case NETWORK_CONNECTION:
-                new NetworkErrorWindow(this, name);
+            case ENDPOINT_UPDATE_ERROR:
+                new EndpointUpdateErrorWindow(this, name, crypto, fiat);
                 return;
+            case NETWORK_ERROR:
+                new NetworkErrorWindow(this);
+                return;
+            case PARSE_ERROR:
+                new ParseErrorWindow(this, name, crypto, fiat);
             case BAD_DATA:
                 new BadDataErrorWindow(this, name);
                 return;
@@ -210,9 +153,14 @@ final public class MainController extends AbstractController implements MainCont
     public void errorDisplay(final Errors error) {
 
         switch (error) {
-            case NETWORK_CONNECTION:
+            case ENDPOINT_UPDATE_ERROR:
+                new EndpointUpdateErrorWindow(this);
+                return;
+            case NETWORK_ERROR:
                 new NetworkErrorWindow(this);
                 return;
+            case PARSE_ERROR:
+                new ParseErrorWindow(this);
             case BAD_DATA:
                 new BadDataErrorWindow(this, "");
                 return;
@@ -224,23 +172,52 @@ final public class MainController extends AbstractController implements MainCont
     @Override
     public void updateFiatCurrency(final FiatCurrencies fiatCurrency) {
         this.currentFiat = fiatCurrency;
-        this.updateWebsiteFiat();
+
+        for (final APICallerInterface endpoint : this.endpointList) {
+            try {
+                this.notifyPriceSet(endpoint, this.currentCrypto, this.currentFiat, endpoint.getPrice(this.currentCrypto, this.currentFiat), endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat) != null, endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat));
+            } catch (final AbstractCurrencyNotSupported exception) {
+                // TODO: Remove this endpoint from the display
+                // TODO: Should we do this better? Loop through and determine first which endpoints to display? And
+                //  not catch it via an exception?
+            }
+        }
     }
 
     @Override
     public void updateCryptocurrency(final CryptoCurrencies cryptoCurrency) {
         this.currentCrypto = cryptoCurrency;
-        this.updateWebsitesCrypto();
+
+        for (final APICallerInterface endpoint : this.endpointList) {
+            try {
+                this.notifyPriceSet(endpoint, this.currentCrypto, this.currentFiat, endpoint.getPrice(this.currentCrypto, this.currentFiat), endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat) != null, endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat));
+            } catch (final AbstractCurrencyNotSupported exception) {
+                // TODO: Remove this endpoint from the display
+                // TODO: Should we do this better? Loop through and determine first which endpoints to display? And
+                //  not catch it via an exception?
+            }
+        }
     }
 
     @Override
-    public void notifyWindowOfUpdate() {
-        this.updateViewPrices();
+    public void notifyUpdating(final APICallerInterface endpoint, final CryptoCurrencies crypto,
+                               final FiatCurrencies fiat, final boolean isUpdating) {
+        // First, check if this is still for the current crypto/fiat combination
+        if (crypto == this.currentCrypto && fiat == this.currentFiat)
+            this.mainWindow.setRefreshing(endpoint.getName());
+    }
+
+    @Override
+    public void notifyPriceSet(final APICallerInterface endpoint, final CryptoCurrencies crypto,
+                               final FiatCurrencies fiat, final double price, final boolean isSuccessful,
+                               final LocalDateTime lastUpdated) {
+        // First, check if this is still for the current crypto/fiat combination
+        if (crypto == this.currentCrypto && fiat == this.currentFiat)
+            this.mainWindow.updatePrice(endpoint.getName(), price, isSuccessful, lastUpdated);
     }
 
     @Override
     public void aboutPagePopUp() {
         new AboutJFrameWindow();
     }
-
 }

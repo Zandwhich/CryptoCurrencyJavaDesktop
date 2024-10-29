@@ -1,6 +1,8 @@
 package com.company.view.window.error.network_error;
 
 import com.company.controller.ControllerInterface;
+import com.company.tool.enums.currency.CryptoCurrencies;
+import com.company.tool.enums.currency.FiatCurrencies;
 import com.company.view.window.error.AbstractJFrameErrorWindow;
 
 /**

@@ -56,6 +56,9 @@ public abstract class AbstractJFrameErrorWindow extends AbstractJFrameWindow imp
         panel.add(new CloseJButton(this));
 
         this.add(panel);
+
+        // TODO: Figure out how to get the window to properly display. Is there an update UI thread I'm missing? When
+        //       I resize the window after it appears, only then can I see the text and button, not before
     }
 
 }

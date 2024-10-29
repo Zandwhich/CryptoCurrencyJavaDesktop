@@ -1,9 +1,10 @@
 package com.company.controller.main;
 
+import com.company.api_call.APICallerContract;
 import com.company.api_call.APICallerInterface;
-import com.company.tool.enums.currency.CryptoCurrencies;
-import com.company.tool.enums.currency.FiatCurrencies;
 import com.company.controller.ControllerInterface;
+import com.company.tool.enums.Errors;
+import com.company.view.button.refresh.RefreshButtonContractInterface;
 import com.company.view.combo_box.crypto_dropdown.CryptoDropdownContractInterface;
 import com.company.view.combo_box.fiat_dropdown.FiatDropdownContractInterface;
 import com.company.view.menu_item.about.AboutMenuItemContractInterface;
@@ -17,7 +18,9 @@ public interface MainControllerInterface extends
         ControllerInterface,
         AboutMenuItemContractInterface,
         CryptoDropdownContractInterface,
-        FiatDropdownContractInterface
+        FiatDropdownContractInterface,
+        APICallerContract,
+        RefreshButtonContractInterface
 {
 
     /**
@@ -32,14 +35,8 @@ public interface MainControllerInterface extends
     ArrayList<APICallerInterface> getEndpointList();
 
     /**
-     * Returns the current fiat currency selected
-     * @return The current fiat currency selected
+     * Pops up a window that displays an error message
+     * @param error The type of error
      */
-    FiatCurrencies getCurrentFiat();
-
-    /**
-     * Returns the current cryptocurrency selected
-     * @return The current cryptocurrency selected
-     */
-    CryptoCurrencies getCurrentCrypto();
+    void errorDisplay(final Errors error);
 }

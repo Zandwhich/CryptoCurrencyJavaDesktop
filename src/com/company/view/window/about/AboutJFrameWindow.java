@@ -24,7 +24,7 @@ public final class AboutJFrameWindow extends AbstractJFrameWindow implements Abo
      * The first part of the message of the About window (for now)
      * TODO: Figure out what to do here properly. Also, figure out how to do proper versioning
      */
-    public static final String MESSAGE_1 = "CryptoCurrency Prices v0.1.1";
+    public static final String MESSAGE_1 = "CryptoCurrency Prices v0.2";
 
     /**
      * The second part of the message of the About window (for now)

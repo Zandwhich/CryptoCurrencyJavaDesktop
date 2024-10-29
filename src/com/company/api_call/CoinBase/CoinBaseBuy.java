@@ -26,71 +26,11 @@ final public class CoinBaseBuy extends AbstractCoinBase {
      * ************ */
 
     /**
-     * The constructor the buy endpoint for CoinBase
-     * @param cryptoCurrency The cryptocurrency in the endpoint
-     * @param fiatCurrency The fiat currency in the endpoint
-     * @param controller The controller that implements the required methods
-     */
-    public CoinBaseBuy(final CryptoCurrencies cryptoCurrency, final FiatCurrencies fiatCurrency,
-                       final APICallerContract controller)
-            throws CryptoCurrencyNotSupported, FiatCurrencyNotSupported {
-        super(cryptoCurrency, fiatCurrency, "Buy", CoinBaseBuy.urlBuilder(cryptoCurrency, fiatCurrency),
-                controller);
-    }
-
-    /**
      * The constructor for CoinBaseBuy when a cryptocurrency and a fiat currency aren't specified (most likely when
      * the currency is not supported for the given endpoint)
      * @param controller The controller that implements the required methods
      */
     public CoinBaseBuy(final APICallerContract controller) {
-        super("Buy", CoinBaseBuy.urlBuilder(null, null), controller);
-    }
-
-
-    /* ************ *
-     *   Methods    *
-     * ************ */
-
-    /**
-     * A function through which to create the URL for the given currency outside the constructor
-     * @param cryptoCurrency The cryptocurrency
-     * @param fiatCurrency The fiat currency
-     * @return The url to be used for the endpoint
-     */
-    public static String urlBuilder(final CryptoCurrencies cryptoCurrency, final FiatCurrencies fiatCurrency) {
-        return cryptoCurrency == null || fiatCurrency == null ?
-                null :
-                cryptoCurrency.getAbbreviatedName() + "-" + fiatCurrency.getAbbreviatedName() + CoinBaseBuy.BUY_EXT;
-    }
-
-    /**
-     * {@inheritDoc}
-     * </p>
-     * In addition, it also updates the endpoint for the CoinBase calls
-     * @param cryptoCurrency The cryptocurrency to be used for this endpoint
-     */
-    @Override
-    public void setCryptoCurrency(final CryptoCurrencies cryptoCurrency) throws CryptoCurrencyNotSupported {
-        super.setCryptoCurrency(cryptoCurrency);
-        super.updateUrlWithNewExtension(cryptoCurrency == null ?
-                null :
-                cryptoCurrency.getAbbreviatedName() + "-" + super.getCurrentFiatCurrency().getAbbreviatedName() +
-                        CoinBaseBuy.BUY_EXT);
-    }
-
-    /**
-     * {@inheritDoc}
-     * </p>
-     * In addition, it also updates the endpoint for the CoinBase calls
-     * @param fiatCurrency The fiat currency to be used for this endpoint
-     */
-    @Override
-    public void setFiatCurrency(final FiatCurrencies fiatCurrency) throws FiatCurrencyNotSupported {
-        super.setFiatCurrency(fiatCurrency);
-        super.updateUrlWithNewExtension(fiatCurrency == null ?
-                null :
-                super.getCurrentCryptoCurrency().getAbbreviatedName() + "-" + fiatCurrency.getAbbreviatedName() +
-                        CoinBaseBuy.BUY_EXT);
+        super("Buy", CoinBaseBuy.BUY_EXT, controller);
     }
 }

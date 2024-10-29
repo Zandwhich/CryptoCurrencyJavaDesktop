@@ -83,7 +83,6 @@ public abstract class AbstractJButtonButton extends JButton implements ButtonInt
 
         // Setting up the window
         //if (!name.equals("")) super.setName(name);
-        //System.out.println("Width: " + width + ", Height: " + height);
         super.setSize(width, height);
     }
 
