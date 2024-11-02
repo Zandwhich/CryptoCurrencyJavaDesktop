@@ -1,7 +1,6 @@
 package com.company.controller.main;
 
 import com.company.api_call.APICallerInterface;
-import com.company.api_call.AbstractAPICaller;
 import com.company.api_call.CoinBase.CoinBaseBuy;
 import com.company.api_call.CoinBase.CoinBaseSell;
 import com.company.api_call.CoinBase.CoinBaseSpot;
@@ -37,7 +36,12 @@ final public class MainController extends AbstractController implements MainCont
     /**
      * The list of all the API endpoints
      */
-    private final ArrayList<APICallerInterface> endpointList = new ArrayList<>();
+    private final ArrayList<APICallerInterface> masterEndpointList = new ArrayList<>();
+
+    /**
+     * The list of the endpoints that are currently being displayed
+     */
+    private final ArrayList<APICallerInterface> activeEndpointList = new ArrayList<>();
 
     /**
      * The currently selected fiat currency
@@ -68,22 +72,23 @@ final public class MainController extends AbstractController implements MainCont
         this.mainWindow.updateDropdowns(this.currentCrypto, this.currentFiat);
 
         /* CoinBase */
-        endpointList.add(new CoinBaseBuy(this));
-        endpointList.add(new CoinBaseSell(this));
-        endpointList.add(new CoinBaseSpot(this));
+        masterEndpointList.add(new CoinBaseBuy(this));
+        masterEndpointList.add(new CoinBaseSell(this));
+        masterEndpointList.add(new CoinBaseSpot(this));
 
         /* CoinCap */
-        endpointList.add(new CoinCap(this));
+        masterEndpointList.add(new CoinCap(this));
 
         /* CryptoCompare */
-        endpointList.add(new CryptoCompare(this));
+        masterEndpointList.add(new CryptoCompare(this));
 
         this.mainWindow.setEndpoints(
-                endpointList
+                masterEndpointList
                         .stream()
                         .map(APICallerInterface::getName)
                         .collect(Collectors.toList()));
 
+        this.updateActiveEndpoints();
         this.refresh();
     }
 
@@ -93,7 +98,7 @@ final public class MainController extends AbstractController implements MainCont
      * ************ */
 
     @Override
-    public ArrayList<APICallerInterface> getEndpointList() { return this.endpointList; }
+    public ArrayList<APICallerInterface> getMasterEndpointList() { return this.masterEndpointList; }
 
     /**
      * The method to be run on a near-infinite loop to run the program
@@ -115,7 +120,7 @@ final public class MainController extends AbstractController implements MainCont
 
     @Override
     public void updatePrices() {
-        for (final APICallerInterface endpoint : this.endpointList) {
+        for (final APICallerInterface endpoint : this.activeEndpointList) {
             new Thread(() -> {
                 try {
                     endpoint.updatePriceAndNotify(this.currentCrypto, this.currentFiat);
@@ -172,14 +177,13 @@ final public class MainController extends AbstractController implements MainCont
     @Override
     public void updateFiatCurrency(final FiatCurrencies fiatCurrency) {
         this.currentFiat = fiatCurrency;
+        this.updateActiveEndpoints();
 
-        for (final APICallerInterface endpoint : this.endpointList) {
+        for (final APICallerInterface endpoint : this.activeEndpointList) {
             try {
                 this.notifyPriceSet(endpoint, this.currentCrypto, this.currentFiat, endpoint.getPrice(this.currentCrypto, this.currentFiat), endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat) != null, endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat));
             } catch (final AbstractCurrencyNotSupported exception) {
-                // TODO: Remove this endpoint from the display
-                // TODO: Should we do this better? Loop through and determine first which endpoints to display? And
-                //  not catch it via an exception?
+                // TODO: Figure out when this fails (it shouldn't)
             }
         }
     }
@@ -187,14 +191,13 @@ final public class MainController extends AbstractController implements MainCont
     @Override
     public void updateCryptocurrency(final CryptoCurrencies cryptoCurrency) {
         this.currentCrypto = cryptoCurrency;
+        this.updateActiveEndpoints();
 
-        for (final APICallerInterface endpoint : this.endpointList) {
+        for (final APICallerInterface endpoint : this.activeEndpointList) {
             try {
                 this.notifyPriceSet(endpoint, this.currentCrypto, this.currentFiat, endpoint.getPrice(this.currentCrypto, this.currentFiat), endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat) != null, endpoint.getLastSuccessfulUpdated(this.currentCrypto, this.currentFiat));
             } catch (final AbstractCurrencyNotSupported exception) {
-                // TODO: Remove this endpoint from the display
-                // TODO: Should we do this better? Loop through and determine first which endpoints to display? And
-                //  not catch it via an exception?
+                // TODO: Figure out when this fails (it shouldn't)
             }
         }
     }
@@ -219,5 +222,15 @@ final public class MainController extends AbstractController implements MainCont
     @Override
     public void aboutPagePopUp() {
         new AboutJFrameWindow();
+    }
+
+    private void updateActiveEndpoints() {
+        this.activeEndpointList.clear();
+
+        for (final APICallerInterface endpoint : this.masterEndpointList) {
+            if (endpoint.canUseCryptoAndFiatCurrencies(this.currentCrypto, this.currentFiat)) {
+                this.activeEndpointList.add(endpoint);
+            }
+        }
     }
 }

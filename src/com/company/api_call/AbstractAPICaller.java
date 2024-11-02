@@ -105,6 +105,11 @@ public abstract class AbstractAPICaller implements APICallerInterface {
         return Arrays.asList(this.acceptedFiats).contains(fiat);
     }
 
+    @Override
+    public boolean canUseCryptoAndFiatCurrencies(final CryptoCurrencies cryptoCurrency, final FiatCurrencies fiatCurrency) {
+        return this.canUseCryptoCurrency(cryptoCurrency) && this.canUseFiatCurrency(fiatCurrency);
+    }
+
     /**
      * A method to avoid duplication in implementation of the "canUseCryptoCurrency" and "canUseFiatCurrency" methods
      * that are in each of the children classes. This method is to only be called by the children classes

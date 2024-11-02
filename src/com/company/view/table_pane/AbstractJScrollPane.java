@@ -49,8 +49,6 @@ abstract public class AbstractJScrollPane extends JScrollPane implements TablePa
      *    Methods   *
      * ************ */
 
-    // TODO: Alex this is where you left off, you need to update the table so that it will update
-
     /**
      * Abstracted setup method to be used by all constructors
      * @param columns The columns of the table

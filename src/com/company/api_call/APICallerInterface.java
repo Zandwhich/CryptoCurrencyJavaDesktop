@@ -43,6 +43,14 @@ public interface APICallerInterface {
     boolean canUseFiatCurrency(final FiatCurrencies fiatCurrency);
 
     /**
+     * Returns if the API endpoint can use both the given crypto and fiat currency
+     * @param cryptoCurrency The cryptocurrency to check
+     * @param fiatCurrency The fiat currency to check
+     * @return If the given crypt and fiat currency can be used with this endpoint
+     */
+    boolean canUseCryptoAndFiatCurrencies(final CryptoCurrencies cryptoCurrency, final FiatCurrencies fiatCurrency);
+
+    /**
      * Updates the price and notifies the controller
      */
     void updatePriceAndNotify(final CryptoCurrencies crypto, final FiatCurrencies fiat)

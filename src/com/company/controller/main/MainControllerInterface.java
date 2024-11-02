@@ -32,7 +32,7 @@ public interface MainControllerInterface extends
      * Gets the list of websites of URLs to hit
      * @return The list of websites of URLs to hit
      */
-    ArrayList<APICallerInterface> getEndpointList();
+    ArrayList<APICallerInterface> getMasterEndpointList();
 
     /**
      * Pops up a window that displays an error message
