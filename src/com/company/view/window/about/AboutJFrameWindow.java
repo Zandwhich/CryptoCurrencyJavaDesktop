@@ -29,7 +29,7 @@ public final class AboutJFrameWindow extends AbstractJFrameWindow implements Abo
     /**
      * The second part of the message of the About window (for now)
      */
-    public static final String MESSAGE_2 = "Alex Zdanowicz 2017-2023";
+    public static final String MESSAGE_2 = "Alex Zdanowicz 2017-2025";
 
     /**
      * The width of the About window
