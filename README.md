@@ -1,25 +1,31 @@
-# CryptoCurrencyPrices #
-An app that displays the various prices of cryptocurrencies from multiple sources in one place.
+# CryptoCurrencyJavaDesktop
 
-## Notes: ##
-I am using Java, as it has a built-in UI framework, as well as it's one of the languages I know best.
+A Java desktop application that aggregates live cryptocurrency prices from multiple exchange APIs into a single unified view.
 
-## API Usages: ##
-This project makes use of multiple API calls from different websites which host cryptocurrency data. These include, but may not be limited to:
-* Coinbase
-    * https://api.coinbase.com/v2/prices/spot?currency=USD
-* QuadricaCX
-    * https://api.quadrigacx.com/v2/ticker?book=btc_cad
-* CoinCap
-    * http://coincap.io/page/ETH
-* Liqui.io
-    * https://api.liqui.io/api/3/ticker/eth_btc
-* CryptoCompare
-    * https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD,JPY,EUR
-* ShapeShift
-    * shapeshift.io/rate/btc_eth
-* CoinMarketCap
-    * https://api.coinmarketcap.com/v2/ticker/2/?convert=EUR
+## Overview
 
-## References: ##
-This project makes use of the JSON Simple project, which can be found [here](https://github.com/fangyidong/json-simple). I do not own this work.
+Built this to solve a real problem: tracking crypto prices meant jumping between Coinbase, CoinMarketCap, and other sites constantly. This app pulls from all of them simultaneously and presents the data in one place.
+
+**Key skills demonstrated:**
+- Consuming and integrating multiple third-party REST APIs in Java
+- JSON parsing and data normalisation across inconsistent response formats
+- Building a desktop UI with Java Swing
+- Designing a multi-source data architecture with a shared currency list (`CryptoCurrenciesList.json`)
+- Tooling: wrote a Python helper script (`CryptoCurrencyListFormatter.py`) to automate formatting the supported currency list
+
+## Tech Stack
+
+| | |
+|---|---|
+| Language | Java |
+| UI | Java Swing |
+| Data format | JSON (via [JSON Simple](https://github.com/fangyidong/json-simple)) |
+| Supporting tooling | Python |
+
+## API Integrations
+
+Integrated with 7 exchanges and data providers at the time of development, including Coinbase, CryptoCompare, CoinCap, and CoinMarketCap. Several of these have since shut down (QuadrigaCX, Liqui.io) or deprecated their original endpoints, which is a natural consequence of building against third-party APIs in a fast-moving space.
+
+## License
+
+[GPL-3.0](LICENSE)
