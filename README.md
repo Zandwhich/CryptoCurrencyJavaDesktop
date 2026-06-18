@@ -16,6 +16,7 @@ Built this to solve a real problem: tracking crypto prices meant jumping between
 ## Tech Stack
 
 | | |
+|---|---|
 | Language | Java |
 | UI | Java Swing |
 | Data format | JSON (via [JSON Simple](https://github.com/fangyidong/json-simple)) |
